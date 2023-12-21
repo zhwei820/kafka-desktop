@@ -166,7 +166,7 @@
 
 <script>
 import clickoutside from "../comp/directives/clickoutside.js";
-import {  ConnsOpened } from "../../wailsjs/go/main/App";
+import { ConnsOpened } from "../../wailsjs/go/main/App";
 import { EventsOn, ClipboardSetText } from "../../wailsjs/runtime";
 import VueSimpleContextMenu from "../comp/vue-simple-context-menu.vue";
 
@@ -250,14 +250,7 @@ export default {
       dbtableColumns: {},
     };
   },
-  watch: {
-    editableTabsValue: {
-      handler: function () {
-        this.syncHintKeys(this.editableTabsValue);
-      },
-      immediate: true,
-    },
-  },
+
   computed: {},
   methods: {
     handleDBContextClick(event, item) {
@@ -303,9 +296,6 @@ export default {
         this.$forceUpdate();
         return;
       }
-      this.editableTabsValue = Object.keys(
-        this.ConnsOpenedData[this.connName]?.OpenedConf.SQLs
-      )[0];
 
       this.$forceUpdate();
     },
@@ -395,19 +385,7 @@ export default {
     this.$forceUpdate();
   },
 
-  mounted() {
-    let that = this;
-    EventsOn("onQuery", function () {
-      if (that.SelectedConn == that.connName) {
-        that.onQuery(that.editableTabsValue);
-      }
-    });
-    EventsOn("EmitQuery", function () {
-      if (that.SelectedConn == that.connName) {
-        that.Query(that.editableTabsValue);
-      }
-    });
-  },
+  mounted() {},
 };
 
 function formatDateTime(date) {
