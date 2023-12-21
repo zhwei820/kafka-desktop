@@ -33,9 +33,10 @@ func (app *App) ConnsOpened() map[string]*backend.Conn {
 	return backend.ConnsOpened
 }
 
-func (app *App) ListConsumerGroups(connName string) (map[string]string, error) {
+func (app *App) ListConsumerGroups(connName string) (map[string]string, error) { // "asset_liability_group": "consumer", // groups
 	return backend.ConnsOpened[connName].InstanceAdmin.ListConsumerGroups()
 }
+
 func (app *App) DescribeConsumerGroups(connName string, groups []string) ([]*sarama.GroupDescription, error) {
 	return backend.ConnsOpened[connName].InstanceAdmin.DescribeConsumerGroups(groups)
 }
@@ -43,8 +44,8 @@ func (app *App) DescribeConsumerGroups(connName string, groups []string) ([]*sar
 func (app *App) ListTopics(connName string) (map[string]sarama.TopicDetail, error) {
 	return backend.ConnsOpened[connName].InstanceAdmin.ListTopics()
 }
-func (app *App) DescribeTopics(connName string, groups []string) ([]*sarama.TopicMetadata, error) {
-	return backend.ConnsOpened[connName].InstanceAdmin.DescribeTopics(groups)
+func (app *App) DescribeTopics(connName string, topics []string) ([]*sarama.TopicMetadata, error) {
+	return backend.ConnsOpened[connName].InstanceAdmin.DescribeTopics(topics)
 }
 func (app *App) TailMessage(connName string, topic string) (map[int32][]*sarama.ConsumerMessage, error) {
 	consumer := backend.ConnsOpened[connName].InstanceConsumer

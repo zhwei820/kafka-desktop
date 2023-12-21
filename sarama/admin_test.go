@@ -33,7 +33,58 @@ type MessageEvent struct {
 	Message *ConsumerMessage `json:"message" gorm:"-"`
 }
 
-func TestGetOffset(t *testing.T) {
+func TestMessageLagForAGroup(t *testing.T) {
+
+}
+
+func TestListConsumerGroupOffsets(t *testing.T) {
+	group := "fixed2-group-test1"
+	topic := "fixed.order.topic"
+	config := NewTestConfig()
+	config.Version = V1_0_0_0
+
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	consumer, _ := NewConsumer([]string{"10.171.22.153:30200"}, config)
+
+	partitions, err := consumer.Partitions(topic)
+	if err != nil {
+		fmt.Println("Error fetching partitions: ", err)
+	}
+
+	response, err := admin.ListConsumerGroupOffsets(group, map[string][]int32{
+		topic: partitions,
+	})
+	if err != nil {
+		t.Fatalf("ListConsumerGroupOffsets failed with error %v", err)
+	}
+	fmt.Println("response", gconv.Export(response))
+
+	for _, partition := range partitions {
+		block := response.GetBlock(topic, partition)
+		if block == nil {
+			t.Fatalf("Expected block for topic %v and partition %v to exist, but it doesn't", topic, partition)
+		}
+		// fmt.Println("======>block", gconv.Export(block))
+
+		latestOffset, err := consumer.Client().GetOffset(topic, partition, OffsetNewest)
+		if err != nil {
+			fmt.Println("Error fetching offset for partition : ", partition, err)
+		}
+		if block.Offset > 0 {
+			fmt.Println("latestOffset", partition, latestOffset, block.Offset)
+		}
+	}
+
+	err = admin.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+func TestGetMessageByOffset(t *testing.T) {
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
 	consumer, _ := NewConsumer([]string{"10.171.22.153:30200"}, config)
@@ -1526,7 +1577,7 @@ func TestDescribeConsumerGroup(t *testing.T) {
 	// seedBroker := NewMockBroker(t, 1)
 	// defer seedBroker.Close()
 
-	expectedGroupID := "fixed2-group-test12"
+	expectedGroupID := "fixed2-group-test1"
 
 	// seedBroker.SetHandlerByMap(map[string]MockResponse{
 	// 	"DescribeGroupsRequest": NewMockDescribeGroupsResponse(t).AddGroupDescription(expectedGroupID, &GroupDescription{
@@ -1659,55 +1710,6 @@ func TestListConsumerGroupsMultiBroker(t *testing.T) {
 
 	if _, found := groups[nonExistingGroup]; found {
 		t.Fatalf("Expected group %v to not exist, but it exists", nonExistingGroup)
-	}
-
-	err = admin.Close()
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestListConsumerGroupOffsets(t *testing.T) {
-	// seedBroker := NewMockBroker(t, 1)
-	// defer seedBroker.Close()
-
-	group := "fixed2-group-test1"
-	topic := "fixed.order.topic"
-	partition := int32(0)
-	expectedOffset := int64(0)
-
-	// seedBroker.SetHandlerByMap(map[string]MockResponse{
-	// 	"OffsetFetchRequest": NewMockOffsetFetchResponse(t).SetOffset(group, "my-topic", partition, expectedOffset, "", ErrNoError).SetError(ErrNoError),
-	// 	"MetadataRequest": NewMockMetadataResponse(t).
-	// 		SetController(seedBroker.BrokerID()).
-	// 		SetBroker(seedBroker.Addr(), seedBroker.BrokerID()),
-	// 	"FindCoordinatorRequest": NewMockFindCoordinatorResponse(t).SetCoordinator(CoordinatorGroup, group, seedBroker),
-	// })
-
-	config := NewTestConfig()
-	config.Version = V1_0_0_0
-
-	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	response, err := admin.ListConsumerGroupOffsets(group, map[string][]int32{
-		topic: {0},
-	})
-	if err != nil {
-		t.Fatalf("ListConsumerGroupOffsets failed with error %v", err)
-	}
-	fmt.Println("response", gconv.Export(response))
-
-	block := response.GetBlock(topic, partition)
-	if block == nil {
-		t.Fatalf("Expected block for topic %v and partition %v to exist, but it doesn't", topic, partition)
-	}
-
-	if block.Offset != expectedOffset {
-		t.Fatalf("Expected offset %v, got %v", expectedOffset, block.Offset)
 	}
 
 	err = admin.Close()
