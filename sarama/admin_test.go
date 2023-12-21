@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/zhwei820/gconv"
+	"gitlab.matrixport.com/common/generic_tool/gmap"
 )
 
 func init() {
@@ -1601,7 +1602,11 @@ func TestDescribeConsumerGroup(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	fmt.Println("result", gconv.Export(result))
+	res, _ := result[0].Members[gmap.Keys(result[0].Members)[0]].GetMemberAssignment()
+	fmt.Println("GetMemberAssignment", gconv.Export(res))
+	// fmt.Println("GetMemberMetadata", gconv.Export(result[0].Members[gmap.Keys(result[0].Members)[0]].GetMemberMetadata()))
 	if len(result) != 1 {
 		t.Fatalf("Expected 1 result, got %v", len(result))
 	}
