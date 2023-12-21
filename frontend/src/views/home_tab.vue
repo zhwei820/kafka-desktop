@@ -39,9 +39,6 @@
           <div style="display: flex; justify-content: space-between">
             <h2>{{ DBConf[key].Name }}</h2>
 
-            <el-button mini type="text" @click="importSQL(DBConf[key])"
-              >import sql</el-button
-            >
             <el-button type="primary" plain @click="OpenConn(key)">
               OPEN
             </el-button>
@@ -63,9 +60,7 @@
           </div>
           <div><strong>User:</strong> {{ " " + DBConf[key].User }}</div>
           <div style="display: flex; justify-content: flex-end">
-            <el-button mini type="success" plain @click="copyShell(DBConf[key])"
-              >copy shell</el-button
-            >
+           
             <el-button mini type="text" @click="startEdit(DBConf[key])"
               >edit</el-button
             >
@@ -89,7 +84,7 @@
 <script>
 import { DBConf } from "../../wailsjs/go/main/App";
 import { OpenConn } from "../../wailsjs/go/main/App";
-import { SetDBConf, ImportSQL } from "../../wailsjs/go/main/App";
+import { SetDBConf } from "../../wailsjs/go/main/App";
 import { ClipboardSetText } from "../../wailsjs/runtime/runtime";
 export default {
   components: {},
@@ -111,33 +106,6 @@ export default {
   },
   computed: {},
   methods: {
-    async importSQL(val) {
-      let sh = `kafka -h${val.Host} -P${val.Port} -u${val.User} -p${val.Password} < `;
-
-      const loading = this.$loading({
-        lock: true,
-        text: "Loading",
-        spinner: "el-icon-loading",
-        background: "rgba(0, 0, 0, 0.7)",
-      });
-
-      try {
-        await ImportSQL(sh);
-      } catch (e) {
-        console.log("ImportSQL e", e);
-      }
-      loading.close();
-    },
-    copyShell(val) {
-      ClipboardSetText(
-        `kafka -h${val.Host} -P${val.Port} -u${val.User} -p${val.Password}  `
-      );
-
-      this.$message({
-        type: "success",
-        message: "Copy Success!",
-      });
-    },
     startEdit(val) {
       this.c = val;
       this.c.Type = "kafka";

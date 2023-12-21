@@ -16,6 +16,7 @@ require (
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475
 	github.com/stretchr/testify v1.8.4
 	github.com/zhwei820/gconv v1.0.4
+	gitlab.matrixport.com/common/generic_tool v0.1.19
 	golang.org/x/net v0.19.0
 	golang.org/x/sync v0.5.0
 )

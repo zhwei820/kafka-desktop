@@ -9,6 +9,7 @@ require (
 	github.com/rs/zerolog v1.31.0
 	github.com/wailsapp/wails/v2 v2.7.1
 	github.com/zhwei820/gconv v1.0.4
+	gitlab.matrixport.com/common/generic_tool v0.1.19
 )
 
 require (
@@ -82,7 +83,6 @@ require (
 	github.com/wailsapp/go-webview2 v1.0.10 // indirect
 	github.com/wailsapp/mimetype v1.4.1 // indirect
 	github.com/zhwei820/errors v1.0.2 // indirect
-	gitlab.matrixport.com/common/generic_tool v0.1.19 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect

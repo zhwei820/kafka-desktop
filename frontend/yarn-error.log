@@ -1,0 +1,47 @@
+Arguments: 
+  /Users/zhouw/.nvm/versions/node/v18.12.0/bin/node /usr/local/bin/yarn
+
+PATH: 
+  /Users/zhouw/.nvm/versions/node/v18.12.0/bin:/Users/zhouw/Library/pnpm:/usr/local/go/bin:/Users/zhouw/.local/share/solana/install/active_release/bin:/Users/zhouw/.go/bin:/Users/zhouw/.go/current/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Applications/Wireshark.app/Contents/MacOS:/usr/local/go/bin:/Users/zhouw/Library/pnpm:/Users/zhouw/.local/share/solana/install/active_release/bin:/Users/zhouw/.go/bin:/Users/zhouw/.go/current/bin:/Users/zhouw/.cargo/bin:/Users/zhouw/.foundry/bin:/Users/zhouw/.orbstack/bin:/Users/zhouw/go/bin:/Users/zhouw/flutter/bin:/Users/zhouw/.rvm/bin:/Users/zhouw/.orbstack/bin:/Users/zhouw/go/bin::/Users/zhouw/flutter/bin
+
+Yarn version: 
+  1.22.10
+
+Node version: 
+  18.12.0
+
+Platform: 
+  darwin x64
+
+Trace: 
+  Error: unable to get local issuer certificate
+      at TLSSocket.onConnectSecure (node:_tls_wrap:1538:34)
+      at TLSSocket.emit (node:events:513:28)
+      at TLSSocket._finishInit (node:_tls_wrap:952:8)
+      at ssl.onhandshakedone (node:_tls_wrap:733:12)
+
+npm manifest: 
+  {
+    "name": "frontend",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+      "dev": "vite",
+      "build": "vite build",
+      "preview": "vite preview"
+    },
+    "dependencies": {
+      "vue": "^3.2.37"
+    },
+    "devDependencies": {
+      "@vitejs/plugin-vue": "^3.0.3",
+      "vite": "^3.0.7"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

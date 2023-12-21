@@ -2,6 +2,7 @@ github.com/andeya/ameda v1.5.3 h1:SvqnhQPZwwabS8HQTRGfJwWPl2w9ZIPInHAw9aE1Wlk=
 github.com/andeya/ameda v1.5.3/go.mod h1:FQDHRe1I995v6GG+8aJ7UIUToEmbdTJn/U26NCPIgXQ=
 github.com/andeya/goutil v1.0.1 h1:eiYwVyAnnK0dXU5FJsNjExkJW4exUGn/xefPt3k4eXg=
 github.com/andeya/goutil v1.0.1/go.mod h1:jEG5/QnnhG7yGxwFUX6Q+JGMif7sjdHmmNVjn7nhJDo=
+github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 h1:DDGfHa7BWjL4YnC6+E63dPcxHo2sUxDIu8g3QgEJdRY=
 github.com/bytedance/go-tagexpr/v2 v2.9.2/go.mod h1:5qsx05dYOiUXOUgnQ7w3Oz8BYs2qtM/bJokdLb79wRM=
 github.com/bytedance/go-tagexpr/v2 v2.9.7 h1:y1b2Qv1fYFNpFEQ1jC3DCB2NZZNrKIpUYRiEj7TfUYE=
 github.com/bytedance/go-tagexpr/v2 v2.9.7/go.mod h1:SyfF2dfcKGKIfTL2trRu+LW4x2mH6ehuigpkvv9JtpY=
@@ -153,6 +154,8 @@ github.com/zhwei820/errors v1.0.2 h1:lxxgnCdfX0cD/SEvde2Yq3lyxk9Zut0yOwSPojXNN8E
 github.com/zhwei820/errors v1.0.2/go.mod h1:oebHEJrHvF2fhhBMkH86Wm7LbB+TPerOI/pqQWRG+XI=
 github.com/zhwei820/gconv v1.0.4 h1:P/6KqQugtdQ6gLSRobs1lRTdoOwsdSGHBNRbDu1Ljus=
 github.com/zhwei820/gconv v1.0.4/go.mod h1:adhkSHHiqNDy7RfUCKQbL6tUuwXfOlqop3SkCmDMGs0=
+gitlab.matrixport.com/common/generic_tool v0.1.19 h1:RZBjNEKvwqqVZ7S8VXO77oe1Ea5caWa3lJ4wymqY8lE=
+gitlab.matrixport.com/common/generic_tool v0.1.19/go.mod h1:/VtTa9xrX6ShMiSDBeedrxUxJzZroCotwwMYFOozCSU=
 golang.org/x/arch v0.0.0-20210923205945-b76863e36670/go.mod h1:5om86z9Hs0C8fWVUuoMHwpExlXzs5Tkyp9hOrfG7pp8=
 golang.org/x/arch v0.3.0 h1:02VY4/ZcO/gBOH6PUaoiptASxtXU10jazRCP865E97k=
 golang.org/x/arch v0.3.0/go.mod h1:5om86z9Hs0C8fWVUuoMHwpExlXzs5Tkyp9hOrfG7pp8=
