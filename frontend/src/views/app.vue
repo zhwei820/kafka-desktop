@@ -19,6 +19,7 @@
 
 <script>
 import HomeTab from "./home_tab.vue";
+import DataQueryTab from "./data_query_tab.vue";
 import { ConnsOpened } from "../../wailsjs/go/main/App";
 
 export default {
