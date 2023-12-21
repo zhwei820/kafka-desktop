@@ -463,13 +463,7 @@
 <script>
 import { Multipane, MultipaneResizer } from "vue-multipane";
 
-import I18nMixins from "../comp/mixins/i18n-mixins";
-import ThemeSwitchMixins from "../comp/mixins/theme-switch-mixins.js";
 import clickoutside from "../comp/directives/clickoutside.js";
-import Spreadsheet from "../comp/spreadsheet.vue";
-import TableSettingSpreadsheet from "../comp/table-setting-spreadsheet.vue";
-import TableIndexSpreadsheet from "../comp/table-index-spreadsheet.vue";
-import TableDiff from "../comp/table-diff.vue";
 import Editor from "../comp/editor.vue";
 import {
   SetConnsOpened,
@@ -488,11 +482,7 @@ export default {
     "click-outside": clickoutside,
   },
   components: {
-    Spreadsheet,
     VueSimpleContextMenu,
-    TableSettingSpreadsheet,
-    TableIndexSpreadsheet,
-    TableDiff,
     Editor,
     Multipane,
     MultipaneResizer,
@@ -505,33 +495,7 @@ export default {
     SelectedConn: {
       type: String,
     },
-
-    diff_db_name: {
-      type: String,
-    },
-    diff_table_name: {
-      type: String,
-    },
-    diff_connName: {
-      type: String,
-    },
-    diff_db_name2: {
-      type: String,
-    },
-    diff_table_name2: {
-      type: String,
-    },
-    diff_connName2: {
-      type: String,
-    },
-    diff1: {
-      type: Number,
-    },
-    diff2: {
-      type: Number,
-    },
   },
-  mixins: [I18nMixins, ThemeSwitchMixins],
   data() {
     return {
       size: 300,
@@ -551,10 +515,6 @@ export default {
           name: "DELETE DB",
           slug: "delete_db",
         },
-        // {
-        //   name: "COPY TABLES CREATE",
-        //   slug: "copy_tables_create",
-        // },
       ],
       optionsTable: [
         {
@@ -572,20 +532,7 @@ export default {
           name: "TRUNCATE TABLE",
           slug: "truncate_table",
         },
-        // {
-        //   name: "COPY TABLES CREATE",
-        //   slug: "copy_tables_create",
-        // },
       ],
-      diff1Val: 0,
-      diff2Val: 0,
-
-      diff_db_nameVal: "",
-      diff_table_nameVal: "",
-      diff_connNameVal: "",
-      diff_db_name2Val: "",
-      diff_table_name2Val: "",
-      diff_connName2Val: "",
 
       canEdit: true,
       startDelete: false,
@@ -603,59 +550,17 @@ export default {
       hintKeys: {},
 
       data: [],
-      tableDataLog: [],
-      tableDataSqlCollection: [
-        {
-          sql: "SELECT *,CONCAT('KILL ', id, ';') FROM information_schema.processlist WHERE db = 'fixedincome' and state like '%lock%';",
-          name: "query lock",
-        },
-        {
-          sql: "show full processlist;",
-          name: "show full processlist",
-        },
-        {
-          sql: "show FULL columns from cell.cells;",
-          name: "show FULL columns",
-        },
-      ],
+
       defaultProps: {
         children: "children",
         label: "label",
       },
 
       tableData: {},
-      tableDataIndex: {},
-      tableDataIndexKeys: {},
       dbtableColumns: {},
-      selectedCode: "",
     };
   },
   watch: {
-    diff1() {
-      this.diff1Val = this.diff1;
-    },
-    diff2() {
-      this.diff2Val = this.diff2;
-    },
-
-    diff_db_name() {
-      this.diff_db_nameVal = this.diff_db_name;
-    },
-    diff_table_name() {
-      this.diff_table_nameVal = this.diff_table_name;
-    },
-    diff_connName() {
-      this.diff_connNameVal = this.diff_connName;
-    },
-    diff_db_name2() {
-      this.diff_db_name2Val = this.diff_db_name2;
-    },
-    diff_table_name2() {
-      this.diff_table_name2Val = this.diff_table_name2;
-    },
-    diff_connName2() {
-      this.diff_connName2Val = this.diff_connName2;
-    },
     editableTabsValue: {
       handler: function () {
         this.syncHintKeys(this.editableTabsValue);
@@ -701,89 +606,6 @@ export default {
       ClipboardSetText(tablesName.join(","));
     },
     onCopyTableCreate(dbName) {},
-    startDiff2() {
-      this.diff2Val = 1;
-      // this.diff_db_nameVal = "";
-      // this.diff_table_nameVal = "";
-      // this.diff_connNameVal = "";
-
-      this.$emit("startDiff2", {
-        diff2: this.diff2Val,
-        diff_db_name2: this.diff_db_name2Val,
-        diff_table_name2: this.diff_table_name2Val,
-        diff_connName2: this.diff_connName2Val,
-      });
-    },
-    startDiff1() {
-      this.diff1Val = 1;
-      // this.diff_db_name2Val = "";
-      // this.diff_table_name2Val = "";
-      // this.diff_connName2Val = "";
-
-      this.$emit("startDiff1", {
-        diff1: this.diff1Val,
-        diff_db_name: this.diff_db_nameVal,
-        diff_table_name: this.diff_table_nameVal,
-        diff_connName: this.diff_connNameVal,
-      });
-    },
-
-    async addDB() {
-      this.startAddDb = true;
-      this.sqlsToExec = ["CREATE SCHEMA `` DEFAULT CHARACTER SET UTF8MB4"];
-      this.sqlsToExecJoin = this.sqlsToExec.join("\n\n");
-      this.dialogVisible = true;
-    },
-    async addTable() {
-      this.startAddDb = true;
-
-      this.sqlsToExec = [
-        `CREATE TABLE \`${
-          this.ConnsOpenedData[this.connName].OpenedConf.SelectedSchema
-        }\`.\`\` (
-  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-
-  PRIMARY KEY (id)
-) DEFAULT CHARSET=utf8mb4 comment 'no qa';  `,
-      ];
-      this.sqlsToExecJoin = this.sqlsToExec.join("\n\n");
-      this.dialogVisible = true;
-    },
-    async refresh() {
-      await this.refreshTree();
-
-      this.$message.success("refresh success!");
-    },
-    showCreateTable(tableName) {
-      ShowCreateTable(this.connName, tableName);
-      this.$message.success("copy to clipboard!");
-    },
-    exportCSV(data, tableName) {
-      let outputSata = convertToCSV(data);
-      // outputSata
-      this.export(outputSata, tableName, "csv");
-    },
-    exportSQL(data, tableName) {
-      let outputSata = convertToSQL(tableName, data);
-      // outputSata
-      this.export(outputSata, tableName, "sql");
-    },
-    export(content, tableName, ext) {
-      SaveFile(ext, tableName, content);
-    },
-    removeTab(targetName) {
-      let tabs = this.ConnsOpenedData[this.connName]?.OpenedConf.SQLs;
-
-      delete tabs[targetName];
-      this.editableTabsValue = Object.keys(tabs)[0];
-
-      this.$forceUpdate();
-
-      SetConnsOpened(
-        this.connName,
-        this.ConnsOpenedData[this.connName]?.OpenedConf
-      );
-    },
 
     async ConnsOpened() {
       this.ConnsOpenedData = await ConnsOpened();
@@ -796,358 +618,8 @@ export default {
       )[0];
 
       this.$forceUpdate();
-      this.refreshColumnKeys();
-    },
-    async refreshColumnKeys() {
-      let that = this;
-      for (var key in this.ConnsOpenedData[this.connName]?.OpenedConf.SQLs) {
-        let tableName =
-          this.ConnsOpenedData[this.connName]?.OpenedConf.SQLs[key][0];
-        if (that.dbtableColumns[tableName] || !tableName) {
-          continue;
-        }
-
-        let sql =
-          "SELECT column_name FROM information_schema.columns WHERE table_name ='" +
-          tableName +
-          "'";
-
-        let res = await Query(
-          this.connName,
-          this.ConnsOpenedData[this.connName].OpenedConf.SelectedSchema,
-          sql
-        );
-
-        that.dbtableColumns[tableName] = {};
-        res.forEach((val) => {
-          that.dbtableColumns[tableName][
-            val.COLUMN_NAME ? val.COLUMN_NAME : val.column_name
-          ] = "";
-        });
-      }
-    },
-    async startDiff(a) {
-      console.log("==>startDiff", a);
-
-      if (a.children) {
-        return;
-      }
-      if (this.diff1Val === 1) {
-        this.diff1Val = -1;
-        this.diff_db_nameVal = a.db;
-        this.diff_table_nameVal = a.label;
-        this.diff_connNameVal = this.connName;
-
-        this.$emit("startDiff1", {
-          diff1: this.diff1Val,
-          diff_db_name: this.diff_db_nameVal,
-          diff_table_name: this.diff_table_nameVal,
-          diff_connName: this.diff_connNameVal,
-        });
-      } else {
-        this.diff2Val = -1;
-        this.diff_db_name2Val = a.db;
-        this.diff_table_name2Val = a.label;
-        this.diff_connName2Val = this.connName;
-
-        this.$emit("startDiff2", {
-          diff2: this.diff2Val,
-          diff_db_name2: this.diff_db_name2Val,
-          diff_table_name2: this.diff_table_name2Val,
-          diff_connName2: this.diff_connName2Val,
-        });
-      }
-    },
-    async startQuery(a) {
-      console.log("===>startQuery", a);
-
-      if (a.children) {
-        return;
-      }
-      this.refreshColumnKeys();
-
-      let sql =
-        "select a.* from " +
-        "`" +
-        a.db +
-        "`" +
-        ".`" +
-        a.label +
-        "` a" +
-        " where 1  order by id desc  limit 10;";
-
-      let item = [a.label, sql, "", a.db];
-      let sqlName = a.label;
-      if (this.ConnsOpenedData[this.connName].OpenedConf.SQLs[sqlName]) {
-        sqlName = sqlName + "__" + generateRandomString(5);
-      }
-      this.ConnsOpenedData[this.connName].OpenedConf.SQLs[sqlName] = item;
-
-      this.editableTabsValue = sqlName;
-      this.syncHintKeys(sqlName);
-
-      this.$forceUpdate();
-      SetConnsOpened(
-        this.connName,
-        this.ConnsOpenedData[this.connName]?.OpenedConf
-      );
-      this.Query(sqlName);
-    },
-    async syncHintKeys(sqlName) {
-      if (
-        !sqlName ||
-        (this.hintKeys[this.connName] &&
-          this.hintKeys[this.connName][sqlName] &&
-          this.hintKeys[this.connName][sqlName].length > 0) ||
-        !this.ConnsOpenedData[this.connName]
-      ) {
-        return;
-      }
-      if (
-        !this.ConnsOpenedData[this.connName].OpenedConf.SQLs[
-          this.editableTabsValue
-        ][0]
-      ) {
-        return;
-      }
-
-      this.hintKeys[this.connName] = {};
-
-      let aLabel = sqlName.split("__")[0];
-      let res;
-      try {
-        res = await Query(
-          this.connName,
-          this.ConnsOpenedData[this.connName].OpenedConf.SQLs[
-            this.editableTabsValue
-          ][3],
-          "SHOW COLUMNS FROM " +
-            this.ConnsOpenedData[this.connName].OpenedConf.SQLs[
-              this.editableTabsValue
-            ][0]
-        );
-      } catch (e) {
-        console.log(
-          "===>e",
-          e,
-          "SHOW COLUMNS FROM " +
-            this.ConnsOpenedData[this.connName].OpenedConf.SQLs[
-              this.editableTabsValue
-            ][0]
-        );
-        return;
-      }
-      let items = res
-        .map((val) => {
-          return val["Field"];
-        })
-        .sort();
-
-      items.push(aLabel);
-      this.hintKeys[this.connName][sqlName] = items;
-    },
-    async startTableSetting(a) {
-      if (a.children) {
-        return;
-      }
-
-      let sql = "";
-
-      let item = [a.label, sql, "true", a.db];
-      let sqlName = a.label + "_table_setting";
-      if (this.ConnsOpenedData[this.connName].OpenedConf.SQLs[sqlName]) {
-        sqlName = sqlName + "__" + generateRandomString(5);
-      }
-      this.ConnsOpenedData[this.connName].OpenedConf.SQLs[sqlName] = item;
-
-      this.editableTabsValue = sqlName;
-
-      this.reloadTableSetting();
-      this.reloadTableIndex();
-      // SetConnsOpened(
-      //   this.connName,
-      //   this.ConnsOpenedData[this.connName]?.OpenedConf
-      // );
     },
 
-    async startTableCloseAll(a) {
-      this.$confirm("关闭全部?", "tip", {
-        confirmButtonText: "Confirm",
-        cancelButtonText: "Cancel",
-        type: "warning",
-      }).then(() => {
-        this.ConnsOpenedData[this.connName].OpenedConf.SQLs = {};
-      });
-    },
-    async startTableDiff(a) {
-      let sql = "";
-      let item = ["", sql, "true", ""];
-      let sqlName = "TABLE-DIFF";
-      if (this.ConnsOpenedData[this.connName].OpenedConf.SQLs[sqlName]) {
-        return;
-      }
-      this.ConnsOpenedData[this.connName].OpenedConf.SQLs[sqlName] = item;
-
-      this.diff1Val = 0;
-      this.diff2Val = 0;
-      this.diff_table_name = "";
-      this.diff_table_name2 = "";
-
-      this.editableTabsValue = sqlName;
-    },
-    async reloadTableSetting() {
-      if (!this.connName) {
-        return;
-      }
-      let res = await Query(
-        this.connName,
-        this.ConnsOpenedData[this.connName].OpenedConf.SQLs[
-          this.editableTabsValue
-        ][3],
-        "SHOW FULL COLUMNS FROM " +
-          this.ConnsOpenedData[this.connName].OpenedConf.SQLs[
-            this.editableTabsValue
-          ][0]
-      );
-      this.tableData[this.editableTabsValue] = res;
-      // console.log("this.tableData[sqlName]", this.tableData[sqlName]);
-
-      this.$forceUpdate();
-    },
-
-    async reloadTableIndex() {
-      if (!this.connName) {
-        return;
-      }
-      let res = await Query(
-        this.connName,
-        this.ConnsOpenedData[this.connName].OpenedConf.SQLs[
-          this.editableTabsValue
-        ][3],
-        "SHOW INDEX FROM " +
-          this.ConnsOpenedData[this.connName].OpenedConf.SQLs[
-            this.editableTabsValue
-          ][0]
-      );
-      this.tableDataIndex[this.editableTabsValue] = res;
-      // console.log("this.tableData[sqlName]", this.tableData[sqlName]);
-
-      try {
-        res = await Query(
-          this.connName,
-          this.ConnsOpenedData[this.connName].OpenedConf.SQLs[
-            this.editableTabsValue
-          ][3],
-          "SHOW COLUMNS FROM " +
-            this.ConnsOpenedData[this.connName].OpenedConf.SQLs[
-              this.editableTabsValue
-            ][0]
-        );
-      } catch (e) {
-        console.log(
-          "===>e",
-          e,
-          "SHOW COLUMNS FROM " +
-            this.ConnsOpenedData[this.connName].OpenedConf.SQLs[
-              this.editableTabsValue
-            ][0]
-        );
-
-        return;
-      }
-      let items = res.map((val) => {
-        return val["Field"];
-      });
-      this.tableDataIndexKeys[this.editableTabsValue] = items;
-
-      this.$forceUpdate();
-    },
-    async startTableDelete(a) {
-      if (a.children) {
-        return;
-      }
-
-      let table =
-        "`" +
-        this.ConnsOpenedData[this.connName].OpenedConf.SelectedSchema +
-        "`.`" +
-        a.label +
-        "`";
-      let sql = "DROP TABLE  " + table;
-
-      this.sqlsToExecJoin = [sql].join("\n\n");
-      this.dialogVisible = true;
-      this.startDelete = true;
-    },
-    async startDBDelete(a) {
-      if (!a.children) {
-        return;
-      }
-
-      let sql = "DROP DATABASE  " + a.label;
-
-      this.sqlsToExecJoin = [sql].join("\n\n");
-      this.dialogVisible = true;
-      this.startDelete = true;
-    },
-    async toggleDbSTAR(a) {
-      if (a.children) {
-        if (
-          this.ConnsOpenedData[this.connName].OpenedConf.StaredSchema.includes(
-            a.label
-          )
-        ) {
-          const index = this.ConnsOpenedData[
-            this.connName
-          ].OpenedConf.StaredSchema.indexOf(a.label); // Find the index of the item
-          if (index !== -1) {
-            this.ConnsOpenedData[this.connName].OpenedConf.StaredSchema.splice(
-              index,
-              1
-            ); // Remove the item at the found index
-          }
-        } else {
-          this.ConnsOpenedData[this.connName].OpenedConf.StaredSchema.unshift(
-            a.label
-          );
-        }
-        this.adjustTree();
-
-        SetConnsOpened(
-          this.connName,
-          this.ConnsOpenedData[this.connName]?.OpenedConf
-        );
-      }
-    },
-    async startTableTruncate(a) {
-      if (a.children) {
-        this.sqlsToExecJoin = a.children
-          .map((val) => {
-            let table =
-              "`" +
-              this.ConnsOpenedData[this.connName].OpenedConf.SelectedSchema +
-              "`.`" +
-              val.label +
-              "`";
-            let sql = "TRUNCATE TABLE  " + table + ";";
-            return sql;
-          })
-          .join("\n\n");
-        this.dialogVisible = true;
-        return;
-      }
-
-      let table =
-        "`" +
-        this.ConnsOpenedData[this.connName].OpenedConf.SelectedSchema +
-        "`.`" +
-        a.label +
-        "`";
-      let sql = "TRUNCATE TABLE  " + table + ";";
-
-      this.sqlsToExecJoin = [sql].join("\n\n");
-      this.dialogVisible = true;
-    },
     handleNodeClick(a) {
       if (!a.children) {
         return;
@@ -1161,197 +633,6 @@ export default {
     },
     onQuery(sqlName) {
       this.Query(sqlName);
-    },
-    apply(a) {
-      this.sqlsToExec = diffSqls(a.diffData, a.table_name);
-      this.sqlsToExecJoin = this.sqlsToExec.join("\n\n");
-      this.dialogVisible = true;
-    },
-    applyTableSettingDiffData(a) {
-      this.startReloadTableSetting = true;
-      this.sqlsToExec = a["diffData"];
-      this.sqlsToExecJoin = this.sqlsToExec.join("\n\n");
-      this.dialogVisible = true;
-    },
-    async confirmApply() {
-      this.sqlsToExec = this.sqlsToExecJoin.split("\n\n");
-      const loading = this.$loading({
-        lock: true,
-        text: "Loading",
-        spinner: "el-icon-loading",
-        background: "rgba(0, 0, 0, 0.7)",
-      });
-
-      setTimeout(() => {
-        loading.close();
-      }, 10000);
-
-      let res;
-      let err;
-      try {
-        res = await Execute(
-          this.connName,
-          this.ConnsOpenedData[this.connName].OpenedConf.SelectedSchema,
-          this.sqlsToExec
-            .map((statement) => statement.trim())
-            .filter((val) => {
-              return val;
-            })
-        );
-      } catch (e) {
-        res = e;
-        err = e;
-        this.$message.error({
-          showClose: true,
-          message: "error: " + this.sqlsToExec.join() + " error:" + e,
-        });
-        loading.close();
-      }
-
-      this.tableDataLog.unshift({
-        time: formatDateTime(new Date()),
-        sql: this.sqlsToExec.join(),
-        result: "affected: " + res + " rows",
-        status: err ? "failed" : "success",
-      });
-
-      if (err) {
-        return;
-      }
-
-      this.$message({
-        message: "affected " + res + " rows; " + this.sqlsToExec.join(),
-        showClose: true,
-        type: "success",
-      });
-
-      loading.close();
-      this.dialogVisible = false;
-
-      if (this.startDelete) {
-        this.refreshTree();
-      }
-      if (this.startReloadTableSetting) {
-        this.reloadTableSetting();
-      }
-      if (this.startAddDb) {
-        this.refreshTree();
-      }
-      this.startReloadTableSetting = false;
-      this.startDelete = false;
-      this.startAddDb = false;
-    },
-    async Query(index) {
-      let code = this.selectedCode
-        ? this.selectedCode
-        : this.ConnsOpenedData[this.connName].OpenedConf.SQLs[index][1];
-
-      if (!code) {
-        return;
-      }
-      let res;
-      let err;
-
-      const loading = this.$loading({
-        lock: true,
-        text: "Loading",
-        spinner: "el-icon-loading",
-        background: "rgba(0, 0, 0, 0.7)",
-      });
-
-      let fn = Query;
-
-      const tmp = code.trim().toLowerCase();
-      let update = false;
-      if (!(tmp.startsWith("select") || tmp.startsWith("show"))) {
-        fn = Execute;
-        update = true;
-
-        code = code
-          .split(";")
-          .map((statement) => statement.trim())
-          .filter((statement) => statement && !statement.startsWith("--"));
-      }
-      // console.log("===>tmp", tmp, update, fn);
-
-      setTimeout(() => {
-        loading.close();
-      }, 10000);
-
-      try {
-        res = await fn(
-          this.connName,
-          this.ConnsOpenedData[this.connName].OpenedConf.SelectedSchema,
-          code
-        );
-      } catch (e) {
-        res = e;
-        err = e;
-        this.$message.error({
-          showClose: true,
-          message: "error: " + code + " error:" + e,
-        });
-        loading.close();
-      }
-      loading.close();
-
-      this.tableDataLog.unshift({
-        time: formatDateTime(new Date()),
-        sql: code,
-        result: !update
-          ? JSON.stringify(res).slice(0, 200)
-          : "affected: " + res + " rows",
-        status: err ? "failed" : "success",
-      });
-
-      if (err) {
-        return;
-      }
-
-      if (!(tmp.startsWith("select") || tmp.startsWith("show"))) {
-        this.$message.success({
-          message: "affected " + res + " rows; " + code,
-          showClose: true,
-        });
-        return;
-      }
-      console.log("--->tmp", tmp, res);
-      if (tmp.startsWith("select")) {
-        this.canEdit = true;
-        if (!res) {
-          let tableName =
-            this.ConnsOpenedData[this.connName]?.OpenedConf.SQLs[index][0];
-          console.log(
-            "111===>tableName",
-            tableName,
-            this.dbtableColumns,
-            this.dbtableColumns[tableName]
-          );
-
-          if (this.dbtableColumns[tableName]) {
-            res = [this.dbtableColumns[tableName]];
-          }
-        }
-      } else {
-        this.canEdit = false;
-      }
-      if (res) {
-        this.tableData[index] = res;
-      }
-      this.$forceUpdate();
-    },
-    selectionChange(val) {
-      this.selectedCode = val;
-    },
-    onUpdateValue(val) {
-      this.ConnsOpenedData[this.connName].OpenedConf.SQLs[
-        this.editableTabsValue
-      ][1] = val;
-
-      SetConnsOpened(
-        this.connName,
-        this.ConnsOpenedData[this.connName]?.OpenedConf
-      );
     },
 
     async refreshTree() {
