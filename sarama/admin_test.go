@@ -2,10 +2,17 @@ package sarama
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/zhwei820/gconv"
 )
+
+func init() {
+	gconv.SetExportExpand(true)
+}
 
 func TestClusterAdmin(t *testing.T) {
 	seedBroker := NewMockBroker(t, 1)
@@ -19,7 +26,8 @@ func TestClusterAdmin(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,7 +49,8 @@ func TestClusterAdminInvalidController(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if admin != nil {
 		defer safeClose(t, admin)
 	}
@@ -67,7 +76,8 @@ func TestClusterAdminCreateTopic(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V0_10_2_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,7 +105,8 @@ func TestClusterAdminCreateTopicWithInvalidTopicDetail(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V0_10_2_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -124,7 +135,8 @@ func TestClusterAdminCreateTopicWithoutAuthorization(t *testing.T) {
 	config := NewTestConfig()
 	config.Version = V0_11_0_0
 
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -141,20 +153,21 @@ func TestClusterAdminCreateTopicWithoutAuthorization(t *testing.T) {
 }
 
 func TestClusterAdminListTopics(t *testing.T) {
-	seedBroker := NewMockBroker(t, 1)
-	defer seedBroker.Close()
+	// seedBroker := NewMockBroker(t, 1)
+	// defer seedBroker.Close()
 
-	seedBroker.SetHandlerByMap(map[string]MockResponse{
-		"MetadataRequest": NewMockMetadataResponse(t).
-			SetController(seedBroker.BrokerID()).
-			SetBroker(seedBroker.Addr(), seedBroker.BrokerID()).
-			SetLeader("my_topic", 0, seedBroker.BrokerID()),
-		"DescribeConfigsRequest": NewMockDescribeConfigsResponse(t),
-	})
+	// seedBroker.SetHandlerByMap(map[string]MockResponse{
+	// 	"MetadataRequest": NewMockMetadataResponse(t).
+	// 		SetController(seedBroker.BrokerID()).
+	// 		SetBroker(seedBroker.Addr(), seedBroker.BrokerID()).
+	// 		SetLeader("my_topic", 0, seedBroker.BrokerID()),
+	// 	"DescribeConfigsRequest": NewMockDescribeConfigsResponse(t),
+	// })
 
 	config := NewTestConfig()
 	config.Version = V1_1_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -167,6 +180,7 @@ func TestClusterAdminListTopics(t *testing.T) {
 	if len(entries) == 0 {
 		t.Fatal(errors.New("no resource present"))
 	}
+	fmt.Println("entries", gconv.Export(entries))
 
 	topic, found := entries["my_topic"]
 	if !found {
@@ -204,7 +218,8 @@ func TestClusterAdminDeleteTopic(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V0_10_2_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -233,7 +248,8 @@ func TestClusterAdminDeleteEmptyTopic(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V0_10_2_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -262,7 +278,8 @@ func TestClusterAdminDeleteTopicError(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V0_10_2_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -291,7 +308,8 @@ func TestClusterAdminCreatePartitions(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -320,7 +338,8 @@ func TestClusterAdminCreatePartitionsWithDiffVersion(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V0_10_2_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -349,7 +368,8 @@ func TestClusterAdminCreatePartitionsWithoutAuthorization(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -387,7 +407,8 @@ func TestClusterAdminAlterPartitionReassignments(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V2_4_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -425,7 +446,8 @@ func TestClusterAdminAlterPartitionReassignmentsWithDiffVersion(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V2_3_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -466,7 +488,8 @@ func TestClusterAdminListPartitionReassignments(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V2_4_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -511,7 +534,8 @@ func TestClusterAdminListPartitionReassignmentsWithDiffVersion(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V2_3_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -547,7 +571,8 @@ func TestClusterAdminDeleteRecords(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -606,7 +631,8 @@ func TestClusterAdminDeleteRecordsWithInCorrectBroker(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -643,7 +669,8 @@ func TestClusterAdminDeleteRecordsWithUnsupportedVersion(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V0_10_2_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -690,7 +717,8 @@ func TestClusterAdminDeleteRecordsWithLeaderNotAvailable(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -746,7 +774,8 @@ func TestClusterAdminDescribeConfig(t *testing.T) {
 		t.Run(tt.saramaVersion.String(), func(t *testing.T) {
 			config := NewTestConfig()
 			config.Version = tt.saramaVersion
-			admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+			admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -802,7 +831,8 @@ func TestClusterAdminDescribeConfigWithErrorCode(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V1_1_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -887,7 +917,8 @@ func TestClusterAdminAlterConfig(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -920,7 +951,8 @@ func TestClusterAdminAlterConfigWithErrorCode(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1005,7 +1037,8 @@ func TestClusterAdminIncrementalAlterConfig(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V2_3_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1046,7 +1079,8 @@ func TestClusterAdminIncrementalAlterConfigWithErrorCode(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V2_3_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1147,7 +1181,8 @@ func TestClusterAdminCreateAcl(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1179,7 +1214,8 @@ func TestClusterAdminCreateAclErrorHandling(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1211,7 +1247,8 @@ func TestClusterAdminCreateAcls(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1256,7 +1293,8 @@ func TestClusterAdminListAcls(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1302,7 +1340,8 @@ func TestClusterAdminDeleteAcl(t *testing.T) {
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1339,7 +1378,8 @@ func TestDescribeTopic(t *testing.T) {
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
 
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1377,7 +1417,8 @@ func TestDescribeTopicWithVersion0_11(t *testing.T) {
 	config := NewTestConfig()
 	config.Version = V0_11_0_0
 
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1402,25 +1443,25 @@ func TestDescribeTopicWithVersion0_11(t *testing.T) {
 }
 
 func TestDescribeConsumerGroup(t *testing.T) {
-	seedBroker := NewMockBroker(t, 1)
-	defer seedBroker.Close()
+	// seedBroker := NewMockBroker(t, 1)
+	// defer seedBroker.Close()
 
-	expectedGroupID := "my-group"
+	expectedGroupID := "fixed2-group-test12"
 
-	seedBroker.SetHandlerByMap(map[string]MockResponse{
-		"DescribeGroupsRequest": NewMockDescribeGroupsResponse(t).AddGroupDescription(expectedGroupID, &GroupDescription{
-			GroupId: expectedGroupID,
-		}),
-		"MetadataRequest": NewMockMetadataResponse(t).
-			SetController(seedBroker.BrokerID()).
-			SetBroker(seedBroker.Addr(), seedBroker.BrokerID()),
-		"FindCoordinatorRequest": NewMockFindCoordinatorResponse(t).SetCoordinator(CoordinatorGroup, expectedGroupID, seedBroker),
-	})
+	// seedBroker.SetHandlerByMap(map[string]MockResponse{
+	// 	"DescribeGroupsRequest": NewMockDescribeGroupsResponse(t).AddGroupDescription(expectedGroupID, &GroupDescription{
+	// 		GroupId: expectedGroupID,
+	// 	}),
+	// 	"MetadataRequest": NewMockMetadataResponse(t).
+	// 		SetController(seedBroker.BrokerID()).
+	// 		SetBroker(seedBroker.Addr(), seedBroker.BrokerID()),
+	// 	"FindCoordinatorRequest": NewMockFindCoordinatorResponse(t).SetCoordinator(CoordinatorGroup, expectedGroupID, seedBroker),
+	// })
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
 
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1429,7 +1470,7 @@ func TestDescribeConsumerGroup(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
+	fmt.Println("result", gconv.Export(result))
 	if len(result) != 1 {
 		t.Fatalf("Expected 1 result, got %v", len(result))
 	}
@@ -1445,21 +1486,12 @@ func TestDescribeConsumerGroup(t *testing.T) {
 }
 
 func TestListConsumerGroups(t *testing.T) {
-	seedBroker := NewMockBroker(t, 1)
-	defer seedBroker.Close()
-
-	seedBroker.SetHandlerByMap(map[string]MockResponse{
-		"MetadataRequest": NewMockMetadataResponse(t).
-			SetController(seedBroker.BrokerID()).
-			SetBroker(seedBroker.Addr(), seedBroker.BrokerID()),
-		"ListGroupsRequest": NewMockListGroupsResponse(t).
-			AddGroup("my-group", "consumer"),
-	})
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
 
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1468,6 +1500,7 @@ func TestListConsumerGroups(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	fmt.Println("groups", gconv.Export(groups))
 
 	if len(groups) != 1 {
 		t.Fatalf("Expected %v results, got %v", 1, len(groups))
@@ -1521,7 +1554,8 @@ func TestListConsumerGroupsMultiBroker(t *testing.T) {
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
 
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1554,26 +1588,27 @@ func TestListConsumerGroupsMultiBroker(t *testing.T) {
 }
 
 func TestListConsumerGroupOffsets(t *testing.T) {
-	seedBroker := NewMockBroker(t, 1)
-	defer seedBroker.Close()
+	// seedBroker := NewMockBroker(t, 1)
+	// defer seedBroker.Close()
 
-	group := "my-group"
-	topic := "my-topic"
+	group := "fixed2-group-test1"
+	topic := "fixed.order.topic"
 	partition := int32(0)
 	expectedOffset := int64(0)
 
-	seedBroker.SetHandlerByMap(map[string]MockResponse{
-		"OffsetFetchRequest": NewMockOffsetFetchResponse(t).SetOffset(group, "my-topic", partition, expectedOffset, "", ErrNoError).SetError(ErrNoError),
-		"MetadataRequest": NewMockMetadataResponse(t).
-			SetController(seedBroker.BrokerID()).
-			SetBroker(seedBroker.Addr(), seedBroker.BrokerID()),
-		"FindCoordinatorRequest": NewMockFindCoordinatorResponse(t).SetCoordinator(CoordinatorGroup, group, seedBroker),
-	})
+	// seedBroker.SetHandlerByMap(map[string]MockResponse{
+	// 	"OffsetFetchRequest": NewMockOffsetFetchResponse(t).SetOffset(group, "my-topic", partition, expectedOffset, "", ErrNoError).SetError(ErrNoError),
+	// 	"MetadataRequest": NewMockMetadataResponse(t).
+	// 		SetController(seedBroker.BrokerID()).
+	// 		SetBroker(seedBroker.Addr(), seedBroker.BrokerID()),
+	// 	"FindCoordinatorRequest": NewMockFindCoordinatorResponse(t).SetCoordinator(CoordinatorGroup, group, seedBroker),
+	// })
 
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
 
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1584,6 +1619,7 @@ func TestListConsumerGroupOffsets(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ListConsumerGroupOffsets failed with error %v", err)
 	}
+	fmt.Println("response", gconv.Export(response))
 
 	block := response.GetBlock(topic, partition)
 	if block == nil {
@@ -1618,7 +1654,8 @@ func TestDeleteConsumerGroup(t *testing.T) {
 	config := NewTestConfig()
 	config.Version = V1_1_0_0
 
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1650,7 +1687,8 @@ func TestDeleteOffset(t *testing.T) {
 	config := NewTestConfig()
 	config.Version = V2_4_0_0
 
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1749,7 +1787,8 @@ func TestDescribeLogDirs(t *testing.T) {
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
 
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1797,7 +1836,8 @@ func TestDescribeLogDirsUnknownBroker(t *testing.T) {
 	config := NewTestConfig()
 	config.Version = V1_0_0_0
 
-	admin, err := NewClusterAdmin([]string{seedBroker.Addr()}, config)
+	admin, err := NewClusterAdmin([]string{"10.171.22.153:30200"}, config)
+
 	if err != nil {
 		t.Fatal(err)
 	}
