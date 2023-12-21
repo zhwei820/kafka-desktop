@@ -56,9 +56,8 @@
         >
           <div>
             <strong>Host:</strong>
-            {{ " " + DBConf[key].Host + ":" + DBConf[key].Port }}
+            {{ " " + DBConf[key].Host }}
           </div>
-          <div><strong>User:</strong> {{ " " + DBConf[key].User }}</div>
           <div style="display: flex; justify-content: flex-end">
             <el-button small type="text" @click="startEdit(DBConf[key])"
               >edit</el-button
