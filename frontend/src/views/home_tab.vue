@@ -60,15 +60,14 @@
           </div>
           <div><strong>User:</strong> {{ " " + DBConf[key].User }}</div>
           <div style="display: flex; justify-content: flex-end">
-           
-            <el-button mini type="text" @click="startEdit(DBConf[key])"
+            <el-button small type="text" @click="startEdit(DBConf[key])"
               >edit</el-button
             >
-            <el-button mini type="text" @click="startDuplicate(DBConf[key])"
+            <el-button small type="text" @click="startDuplicate(DBConf[key])"
               >duplicate</el-button
             >
             <el-button
-              size="mini"
+              size="small"
               plain
               type="danger"
               @click="deleteDBConf(key)"
