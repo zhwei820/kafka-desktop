@@ -166,7 +166,7 @@
 
 <script>
 import clickoutside from "../comp/directives/clickoutside.js";
-import { Query, ConnsOpened } from "../../wailsjs/go/main/App";
+import {  ConnsOpened } from "../../wailsjs/go/main/App";
 import { EventsOn, ClipboardSetText } from "../../wailsjs/runtime";
 import VueSimpleContextMenu from "../comp/vue-simple-context-menu.vue";
 
