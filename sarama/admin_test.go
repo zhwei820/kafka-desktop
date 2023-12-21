@@ -1,6 +1,7 @@
 package sarama
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -12,6 +13,85 @@ import (
 
 func init() {
 	gconv.SetExportExpand(true)
+}
+
+type EventResultStatus uint8
+
+const (
+	EventProcessing EventResultStatus = iota
+	EventSuccess
+	EventFailed
+)
+
+const (
+	FailedCodeOk = 0
+)
+
+// MessageEvent common event
+type MessageEvent struct {
+	Data    interface{}      `json:"data" gorm:"-"`
+	Message *ConsumerMessage `json:"message" gorm:"-"`
+}
+
+func TestGetOffset(t *testing.T) {
+	config := NewTestConfig()
+	config.Version = V1_0_0_0
+	consumer, _ := NewConsumer([]string{"10.171.22.153:30200"}, config)
+
+	topic := "fixed.order.topic"
+	// Fetch the latest offset for each partition
+	// "高水位标记"（high water marks）是指 Kafka 中每个分区最新的已提交消息的偏移量（offset）。这个偏移量表示了消费者（consumer）在分区中已经读取的消息位置。
+	// Get the partitions for the topic
+	partitions, err := consumer.Partitions(topic)
+	if err != nil {
+		fmt.Println("Error fetching partitions: ", err)
+	}
+
+	// Fetch the latest offset for each partition
+	offsets := make(map[int32]int64)
+	for _, partition := range partitions {
+		latestOffset, err := consumer.Client().GetOffset(topic, partition, OffsetNewest)
+		if err != nil {
+			fmt.Println("Error fetching offset for partition : ", partition, err)
+		}
+		offsets[partition] = latestOffset
+	}
+
+	// Define a map to store fetched messages
+	messages := make(map[int32][]*MessageEvent)
+	// fmt.Println("offsets", gconv.Export(offsets))
+
+	// Fetch the latest 500 messages for each partition
+	for partition, offset := range offsets {
+		partition, offset := partition, offset
+		go func() {
+			partitionConsumer, err := consumer.ConsumePartition(topic, partition, offset-1)
+			if err != nil {
+				fmt.Println("Error creating partition consumer: ", err)
+				return
+			}
+			defer func() {
+				if err := partitionConsumer.Close(); err != nil {
+					fmt.Println("Error closing partition consumer: ", err)
+				}
+			}()
+			for message := range partitionConsumer.Messages() {
+
+				messageEvent := MessageEvent{}
+				messageEvent.Data = map[string]interface{}{}
+				if err := json.Unmarshal(message.Value, &messageEvent); err != nil {
+					fmt.Println("==>err", err)
+					continue
+				}
+				// fmt.Println("messageEvent", gconv.Export(messageEvent))
+				messageEvent.Message = message
+				messages[partition] = append(messages[partition], &messageEvent)
+			}
+		}()
+		// Iterate through fetched messages
+	}
+	time.Sleep(5 * time.Second)
+	fmt.Println("messages", gconv.Export(messages))
 }
 
 func TestClusterAdmin(t *testing.T) {

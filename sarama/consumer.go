@@ -70,7 +70,7 @@ type Consumer interface {
 	// HighWaterMarks returns the current high water marks for each topic and partition.
 	// Consistency between partitions is not guaranteed since high water marks are updated separately.
 	HighWaterMarks() map[string]map[int32]int64
-
+	Client() Client
 	// Close shuts down the consumer. It must be called after all child
 	// PartitionConsumers have already been closed.
 	Close() error
@@ -150,6 +150,10 @@ func (c *consumer) Close() error {
 
 func (c *consumer) Topics() ([]string, error) {
 	return c.client.Topics()
+}
+
+func (c *consumer) Client() Client {
+	return c.client
 }
 
 func (c *consumer) Partitions(topic string) ([]int32, error) {
