@@ -20,461 +20,154 @@
         display: 'flex !important',
       }"
     >
-      <multipane style="width: 100%" class="custom-resizer">
-        <el-col
-          :style="{ minWidth: '200px', width: '350px', maxWidth: '500px' }"
-        >
-          <div style="height: 90vh; overflow: scroll">
-            <el-tooltip content="ADD DB" placement="top">
-              <el-button
-                style="margin-left: 20px; font-size: 20px"
-                type="text"
-                @click="() => addDB()"
-                icon="el-icon-plus"
-              >
-              </el-button>
-            </el-tooltip>
-            <el-tooltip content="ADD TABLE" placement="top">
-              <el-button
-                style="margin-left: 20px; font-size: 20px"
-                type="text"
-                @click="() => addTable()"
-                icon="el-icon-document-add"
-              >
-              </el-button>
-            </el-tooltip>
-            <el-tooltip content="REFRESH" placement="top">
-              <el-button
-                style="margin-left: 20px; font-size: 20px; margin-left: 20px"
-                type="text"
-                @click="() => refresh()"
-                icon="el-icon-refresh"
-              >
-              </el-button>
-            </el-tooltip>
-            <el-tooltip content="DIFF" placement="top">
-              <el-button
-                style="margin-left: 20px; font-size: 20px; margin-left: 20px"
-                type="text"
-                @click="() => startTableDiff()"
-                icon="el-icon-s-help"
-              >
-              </el-button>
-            </el-tooltip>
-
-            <el-tooltip content="CloseAll" placement="top">
-              <el-button
-                style="margin-left: 20px; font-size: 20px; margin-left: 20px"
-                type="text"
-                @click="() => startTableCloseAll()"
-                icon="el-icon-close"
-              >
-              </el-button>
-            </el-tooltip>
-
-            <el-tree
-              style="background-color: lightgray"
-              :data="data"
-              :props="defaultProps"
-              node-key="label"
-              lazy
-              @node-click="handleNodeClick"
-              highlight-current
-              :default-expanded-keys="[
-                ConnsOpenedData[connName].OpenedConf.SelectedSchema,
-              ]"
-              accordion
+      <el-col :style="{ minWidth: '200px', width: '350px', maxWidth: '500px' }">
+        <div style="height: 90vh; overflow: scroll">
+          <el-tree
+            style="background-color: lightgray"
+            :data="data"
+            :props="defaultProps"
+            node-key="label"
+            lazy
+            @node-click="handleNodeClick"
+            highlight-current
+            :default-expanded-keys="[
+              ConnsOpenedData[connName].OpenedConf.SelectedSchema,
+            ]"
+            accordion
+          >
+            <div
+              @contextmenu.prevent="
+                data.children
+                  ? handleDBContextClick($event, data)
+                  : handleTableContextClick($event, data)
+              "
+              class="custom-tree-node"
+              slot-scope="{ node, data }"
+              style="
+                display: flex;
+                justify-content: space-between;
+                width: 86%;
+                margin-right: 20px;
+              "
             >
-              <div
-                @contextmenu.prevent="
-                  data.children
-                    ? handleDBContextClick($event, data)
-                    : handleTableContextClick($event, data)
-                "
-                class="custom-tree-node"
-                slot-scope="{ node, data }"
-                style="
-                  display: flex;
-                  justify-content: space-between;
-                  width: 86%;
-                  margin-right: 20px;
-                "
-              >
-                <div style="max-width: 68%; overflow: hidden">
-                  {{ node.label }}
-                </div>
+              <div style="max-width: 68%; overflow: hidden">
+                {{ node.label }}
+              </div>
 
-                <div v-if="diff1Val === 1 || diff2Val === 1">
-                  <el-tooltip :content="'DIFF TABLE'" placement="top">
-                    <el-button
-                      type="text"
-                      v-if="!data.children"
-                      @click="() => startDiff(data)"
-                      icon="el-icon-help"
-                    >
-                    </el-button>
-                  </el-tooltip>
-                </div>
-                <div v-else>
-                  <el-tooltip :content="'QUERY TABLE'" placement="top">
-                    <el-button
-                      type="text"
-                      v-if="!data.children"
-                      @click="() => startQuery(data)"
-                      icon="el-icon-s-promotion"
-                    >
-                    </el-button>
-                  </el-tooltip>
-                  <el-tooltip :content="'SETTING TABLE'" placement="top">
-                    <el-button
-                      type="text"
-                      v-if="!data.children"
-                      @click="() => startTableSetting(data)"
-                      icon="el-icon-setting"
-                    >
-                    </el-button>
-                  </el-tooltip>
-                  <!-- <el-tooltip :content="'DELETE TABLE'" placement="top">
+              <div v-if="diff1Val === 1 || diff2Val === 1">
+                <el-tooltip :content="'DIFF TABLE'" placement="top">
                   <el-button
                     type="text"
                     v-if="!data.children"
-                    @click="() => startTableDelete(data)"
-                    icon="el-icon-delete"
+                    @click="() => startDiff(data)"
+                    icon="el-icon-help"
                   >
                   </el-button>
-                </el-tooltip> -->
-                  <!-- <el-tooltip
-                  :content="'TRUNCATE ' + (data.children ? 'DB' : 'TABLE')"
-                  placement="top"
-                >
+                </el-tooltip>
+              </div>
+              <div v-else>
+                <el-tooltip :content="'QUERY TABLE'" placement="top">
                   <el-button
                     type="text"
-                    @click="() => startTableTruncate(data)"
+                    v-if="!data.children"
+                    @click="() => startQuery(data)"
+                    icon="el-icon-s-promotion"
+                  >
+                  </el-button>
+                </el-tooltip>
+                <el-tooltip :content="'SETTING TABLE'" placement="top">
+                  <el-button
+                    type="text"
+                    v-if="!data.children"
+                    @click="() => startTableSetting(data)"
+                    icon="el-icon-setting"
+                  >
+                  </el-button>
+                </el-tooltip>
+
+                <el-tooltip :content="'STAR'" placement="top">
+                  <el-button
+                    type="text"
+                    @click="() => toggleDbSTAR(data)"
+                    v-if="data.children"
                     :icon="
-                      data.children
-                        ? 'el-icon-folder-delete'
-                        : 'el-icon-document-delete'
+                      ConnsOpenedData[
+                        connName
+                      ].OpenedConf.StaredSchema.includes(data.label)
+                        ? 'el-icon-star-on'
+                        : 'el-icon-star-off'
                     "
                   >
                   </el-button>
-                </el-tooltip> -->
-                  <el-tooltip :content="'STAR'" placement="top">
-                    <el-button
-                      type="text"
-                      @click="() => toggleDbSTAR(data)"
-                      v-if="data.children"
-                      :icon="
-                        ConnsOpenedData[
-                          connName
-                        ].OpenedConf.StaredSchema.includes(data.label)
-                          ? 'el-icon-star-on'
-                          : 'el-icon-star-off'
-                      "
-                    >
-                    </el-button>
-                  </el-tooltip>
-                  &nbsp;
+                </el-tooltip>
+                &nbsp;
+              </div>
+            </div>
+          </el-tree>
+        </div>
+      </el-col>
+
+      <div :style="{ flexGrow: 1, maxWidth: '80vw' }">
+        <el-col :span="24">
+          <el-tabs
+            class="fixed-tabs"
+            v-model="editableTabsValue"
+            type="card"
+            @tab-remove="removeTab"
+          >
+            <el-tab-pane
+              v-for="(item, index) in ConnsOpenedData[connName].OpenedConf.SQLs"
+              :key="index"
+              :label="index"
+              :name="index"
+              closable
+              lazy
+            >
+              <div>
+                <div
+                  v-if="!ConnsOpenedData[connName].OpenedConf.SQLs[index][2]"
+                  style="height: 85vh"
+                >
+                  <Spreadsheet
+                    style="
+                      align-content: space-between;
+                      display: flex;
+                      flex-direction: column;
+                      flex-grow: 1;
+                      max-width: 80vw;
+                      margin-bottom: 10px;
+                    "
+                    :maxHeight="460 + 300 - size"
+                    :table-data-prop="tableData[index] ?? []"
+                    :dbtable-columns="
+                      dbtableColumns[
+                        ConnsOpenedData[connName].OpenedConf.SQLs[index][0]
+                      ]
+                    "
+                    :can-edit="canEdit"
+                    @apply="apply"
+                    :table_name="
+                      '`' +
+                      ConnsOpenedData[connName].OpenedConf.SQLs[index][3] +
+                      '`.`' +
+                      ConnsOpenedData[connName].OpenedConf.SQLs[index][0] +
+                      '`'
+                    "
+                  />
                 </div>
               </div>
-            </el-tree>
-          </div>
+            </el-tab-pane>
+          </el-tabs>
         </el-col>
-        <multipane-resizer></multipane-resizer>
-        <div :style="{ flexGrow: 1, maxWidth: '80vw' }">
-          <el-col :span="24">
-            <el-tabs
-              class="fixed-tabs"
-              v-model="editableTabsValue"
-              type="card"
-              @tab-remove="removeTab"
-            >
-              <el-tab-pane
-                v-for="(item, index) in ConnsOpenedData[connName].OpenedConf
-                  .SQLs"
-                :key="index"
-                :label="index"
-                :name="index"
-                closable
-                lazy
-              >
-                <div>
-                  <div
-                    v-if="!ConnsOpenedData[connName].OpenedConf.SQLs[index][2]"
-                    style="height: 85vh"
-                  >
-                    <div
-                      style="
-                        display: flex;
-                        justify-content: flex-end;
-                        margin-right: 20px;
-                      "
-                    >
-                      <el-button
-                        size="mini"
-                        plain
-                        type="primary"
-                        @click="
-                          showCreateTable(
-                            '`' +
-                              ConnsOpenedData[connName].OpenedConf.SQLs[
-                                index
-                              ][3] +
-                              '`.`' +
-                              ConnsOpenedData[connName].OpenedConf.SQLs[
-                                index
-                              ][0] +
-                              '`'
-                          )
-                        "
-                      >
-                        SHOW CREATE TABLE
-                      </el-button>
-                      <el-button
-                        size="mini"
-                        plain
-                        type="primary"
-                        @click="
-                          exportCSV(
-                            tableData[index],
-                            '`' +
-                              ConnsOpenedData[connName].OpenedConf.SQLs[
-                                index
-                              ][3] +
-                              '`.`' +
-                              ConnsOpenedData[connName].OpenedConf.SQLs[
-                                index
-                              ][0] +
-                              '`'
-                          )
-                        "
-                      >
-                        EXPORT CSV
-                      </el-button>
-                      <el-button
-                        size="mini"
-                        plain
-                        type="primary"
-                        @click="
-                          exportSQL(
-                            tableData[index],
-                            '`' +
-                              ConnsOpenedData[connName].OpenedConf.SQLs[
-                                index
-                              ][3] +
-                              '`.`' +
-                              ConnsOpenedData[connName].OpenedConf.SQLs[
-                                index
-                              ][0] +
-                              '`'
-                          )
-                        "
-                      >
-                        EXPORT SQL
-                      </el-button>
-                    </div>
-
-                    <multipane
-                      style="width: 100%; height: 85vh"
-                      layout="horizontal"
-                      v-on:paneResizeStop="paneresizestop"
-                      v-on:paneResize="paneresizestop"
-                    >
-                      <div>
-                        <Editor
-                          :keywords="
-                            hintKeys[connName]
-                              ? hintKeys[connName][index]
-                                ? hintKeys[connName][index]
-                                : []
-                              : []
-                          "
-                          v-model="
-                            ConnsOpenedData[connName].OpenedConf.SQLs[index][1]
-                          "
-                          @onSelectionChange="selectionChange"
-                          @onUpdateValue="onUpdateValue"
-                        />
-                      </div>
-                      <multipane-resizer></multipane-resizer>
-                      <Spreadsheet
-                        style="
-                          align-content: space-between;
-                          display: flex;
-                          flex-direction: column;
-                          flex-grow: 1;
-                          max-width: 80vw;
-                          margin-bottom: 10px;
-                        "
-                        :maxHeight="460 + 300 - size"
-                        :table-data-prop="tableData[index] ?? []"
-                        :dbtable-columns="
-                          dbtableColumns[
-                            ConnsOpenedData[connName].OpenedConf.SQLs[index][0]
-                          ]
-                        "
-                        :can-edit="canEdit"
-                        @apply="apply"
-                        :table_name="
-                          '`' +
-                          ConnsOpenedData[connName].OpenedConf.SQLs[index][3] +
-                          '`.`' +
-                          ConnsOpenedData[connName].OpenedConf.SQLs[index][0] +
-                          '`'
-                        "
-                      />
-                    </multipane>
-                  </div>
-                  <div v-else>
-                    <TableDiff
-                      v-if="index === 'TABLE-DIFF'"
-                      @startDiff2="startDiff2"
-                      @startDiff1="startDiff1"
-                      :db_name="diff_db_nameVal"
-                      :table_name="diff_table_nameVal"
-                      :connName="diff_connNameVal"
-                      :db_name2="diff_db_name2Val"
-                      :table_name2="diff_table_name2Val"
-                      :connName2="diff_connName2Val"
-                      :diff2="diff2Val"
-                      :diff1="diff1Val"
-                    ></TableDiff>
-                    <el-tabs type="border-card" v-else>
-                      <el-tab-pane label="Setting">
-                        <TableSettingSpreadsheet
-                          :can-edit="true"
-                          :table-data-prop="tableData[index] ?? []"
-                          @applyTableSettingDiffData="applyTableSettingDiffData"
-                          :table_name="
-                            '`' +
-                            ConnsOpenedData[connName].OpenedConf.SQLs[
-                              index
-                            ][3] +
-                            '`.`' +
-                            ConnsOpenedData[connName].OpenedConf.SQLs[
-                              index
-                            ][0] +
-                            '`'
-                          "
-                          style="margin-bottom: 10px"
-                        />
-                      </el-tab-pane>
-                      <el-tab-pane label="Index">
-                        <TableIndexSpreadsheet
-                          :can-edit="true"
-                          :table-data-prop="tableDataIndex[index] ?? []"
-                          :table-data-index-keys-prop="
-                            tableDataIndexKeys[index] ?? []
-                          "
-                          @applyTableIndexDiffData="applyTableSettingDiffData"
-                          :table_name="
-                            '`' +
-                            ConnsOpenedData[connName].OpenedConf.SQLs[
-                              index
-                            ][3] +
-                            '`.`' +
-                            ConnsOpenedData[connName].OpenedConf.SQLs[
-                              index
-                            ][0] +
-                            '`'
-                          "
-                          style="margin-bottom: 10px"
-                        />
-                      </el-tab-pane>
-                    </el-tabs>
-                  </div>
-
-                  <div
-                    style="
-                      margin-right: 10px;
-                      margin-bottom: 0px;
-                      z-index: 1000;
-                      float: right;
-                    "
-                  >
-                    <el-popover placement="right" width="1200" trigger="hover">
-                      <div style="overflow: scroll; max-height: 700px">
-                        <el-table :data="tableDataLog" border height="450">
-                          <el-table-column
-                            prop="status"
-                            label="Status"
-                            width="80"
-                          >
-                          </el-table-column>
-                          <el-table-column prop="time" label="Time" width="180">
-                          </el-table-column>
-                          <el-table-column prop="sql" label="Sql">
-                          </el-table-column>
-                          <el-table-column
-                            prop="result"
-                            label="Result"
-                            width="380"
-                          >
-                          </el-table-column>
-                        </el-table>
-                      </div>
-                      <el-button type="success" slot="reference">
-                        Action Logs
-                      </el-button>
-                    </el-popover>
-
-                    <el-popover placement="right" width="1200" trigger="hover">
-                      <div style="overflow: scroll; max-height: 700px">
-                        <el-table
-                          :data="tableDataSqlCollection"
-                          border
-                          height="450"
-                        >
-                          <el-table-column prop="name" label="Name" width="180">
-                          </el-table-column>
-                          <el-table-column prop="sql" label="Sql">
-                          </el-table-column>
-                        </el-table>
-                      </div>
-                      <el-button type="success" slot="reference">
-                        Sql Collections
-                      </el-button>
-                    </el-popover>
-                  </div>
-                </div>
-              </el-tab-pane>
-            </el-tabs>
-          </el-col>
-        </div>
-      </multipane>
+      </div>
     </el-row>
-
-    <el-dialog title="Confirm SQL" :visible.sync="dialogVisible" width="50%">
-      <el-input
-        type="textarea"
-        :rows="10"
-        placeholder="请输入内容"
-        v-model="sqlsToExecJoin"
-      >
-      </el-input>
-
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="confirmApply">Confirm</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 
 <script>
-import { Multipane, MultipaneResizer } from "vue-multipane";
-
 import clickoutside from "../comp/directives/clickoutside.js";
-import Editor from "../comp/editor.vue";
-import {
-  SetConnsOpened,
-  Query,
-  ConnsOpened,
-  Execute,
-  SaveFile,
-  ShowCreateTable,
-} from "../../wailsjs/go/main/App";
+import { Query, ConnsOpened } from "../../wailsjs/go/main/App";
 import { EventsOn, ClipboardSetText } from "../../wailsjs/runtime";
-import { diffSqls } from "../utils";
 import VueSimpleContextMenu from "../comp/vue-simple-context-menu.vue";
 
 export default {
@@ -483,9 +176,6 @@ export default {
   },
   components: {
     VueSimpleContextMenu,
-    Editor,
-    Multipane,
-    MultipaneResizer,
   },
   props: {
     connName: {
@@ -625,22 +315,18 @@ export default {
         return;
       }
       this.ConnsOpenedData[this.connName].OpenedConf.SelectedSchema = a.label;
-
-      SetConnsOpened(
-        this.connName,
-        this.ConnsOpenedData[this.connName]?.OpenedConf
-      );
     },
     onQuery(sqlName) {
       this.Query(sqlName);
     },
 
     async refreshTree() {
-      let res = await Query(
-        this.connName,
-        this.ConnsOpenedData[this.connName].OpenedConf.SelectedSchema,
-        "show databases"
-      );
+      // let res = await Query(
+      //   this.connName,
+      //   this.ConnsOpenedData[this.connName].OpenedConf.SelectedSchema,
+      //   "show databases"
+      // );
+      let res = [];
       this.data = res
         .map((val) => {
           return { label: val.Database, children: [] };
@@ -660,12 +346,12 @@ export default {
       this.adjustTree();
 
       this.data.forEach(async (val, index) => {
-        res = await Query(
-          this.connName,
-          this.ConnsOpenedData[this.connName].OpenedConf.SelectedSchema,
-          "SHOW TABLES IN `" + val.label + "`"
-        );
-
+        // res = await Query(
+        //   this.connName,
+        //   this.ConnsOpenedData[this.connName].OpenedConf.SelectedSchema,
+        //   "SHOW TABLES IN `" + val.label + "`"
+        // );
+        res = [];
         if (!res) {
           return;
         }
@@ -721,26 +407,8 @@ export default {
         that.Query(that.editableTabsValue);
       }
     });
-    EventsOn("SaveQuery", function () {
-      SetConnsOpened(
-        that.connName,
-        that.ConnsOpenedData[that.connName]?.OpenedConf
-      );
-    });
   },
 };
-
-function generateRandomString(length) {
-  const charset = "abcdefghijklmnopqrstuvwxyz0123456789";
-  let randomString = "";
-
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * charset.length);
-    randomString += charset[randomIndex];
-  }
-
-  return randomString;
-}
 
 function formatDateTime(date) {
   const year = date.getFullYear().toString().slice(-2);
@@ -834,31 +502,5 @@ function convertToSQL(tableName, data) {
 }
 .el-tabs__content {
   padding-bottom: 0 !important;
-}
-
-.custom-resizer > .multipane-resizer {
-  margin: 0;
-  left: 0;
-  position: relative;
-
-  &:before {
-    display: block;
-    content: "";
-    width: 3px;
-    height: 40px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-top: -20px;
-    margin-left: -1.5px;
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #ccc;
-  }
-
-  &:hover {
-    &:before {
-      border-color: #999;
-    }
-  }
 }
 </style>
