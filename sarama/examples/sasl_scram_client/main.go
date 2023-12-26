@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -101,7 +102,7 @@ func main() {
 		conf.Net.SASL.Mechanism = sarama.SASLTypeSCRAMSHA256
 
 	} else {
-		log.Fatalf("invalid SHA algorithm \"%s\": can be either \"sha256\" or \"sha512\"", *algorithm)
+		fmt.Printf("invalid SHA algorithm \"%s\": can be either \"sha256\" or \"sha512\"", *algorithm)
 	}
 
 	if *useTLS {

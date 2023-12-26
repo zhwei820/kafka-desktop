@@ -123,7 +123,7 @@ func (conn *Conn) GetConsumerGroupMessageLag(topic, group string) ([]*MessageLag
 	return res, nil
 }
 
-func (conn *Conn) GetMessageByOffset(topic string, lookBackNum int64) (map[int32][]*MessageEvent, error) {
+func (conn *Conn) TailMessage(topic string, lookBackNum int64) (map[int32][]*MessageEvent, error) {
 	consumer := conn.InstanceConsumer
 
 	partitions, err := consumer.Partitions(topic)
@@ -166,7 +166,11 @@ func (conn *Conn) GetMessageByOffset(topic string, lookBackNum int64) (map[int32
 				messageEvent.Data = map[string]interface{}{}
 				if err := json.Unmarshal(message.Value, &messageEvent); err != nil {
 					log.Error().Err(err).Msg("Error Unmarshal")
-					continue
+				}
+				if gconv.String(messageEvent.Data) == "{}" { //empty, try without data wrap
+					if err := json.Unmarshal(message.Value, &messageEvent.Data); err != nil {
+						log.Error().Err(err).Msg("Error Unmarshal")
+					}
 				}
 				messageEvent.Message = message
 				messages[partition] = append(messages[partition], &messageEvent)
