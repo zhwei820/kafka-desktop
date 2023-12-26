@@ -73,6 +73,7 @@ const (
 type MessageEvent struct {
 	Data    interface{}             `json:"data" gorm:"-"`
 	Message *sarama.ConsumerMessage `json:"message" gorm:"-"`
+	Headers [][]string              `json:"headers" gorm:"-"`
 }
 
 type MessageLag struct {
@@ -172,7 +173,13 @@ func (conn *Conn) TailMessage(topic string, lookBackNum int64) (map[int32][]*Mes
 						log.Error().Err(err).Msg("Error Unmarshal")
 					}
 				}
+
 				messageEvent.Message = message
+				for _, header := range message.Headers {
+
+					messageEvent.Headers = append(messageEvent.Headers, []string{(string(header.Key)), (string(header.Value))})
+
+				}
 				messages[partition] = append(messages[partition], &messageEvent)
 			}
 		}()
